@@ -1,6 +1,7 @@
 const { addSeconds, differenceInSeconds } = require("date-fns");
 const config = require("./config.json");
 
+let nth = 0;
 let probeQueue = [];
 
 function run() {
@@ -16,6 +17,7 @@ function run() {
       probeQueue = probes;
       firstTime = false;
     } else {
+      nth += 1;
       probeQueue.forEach((probe, idx) => {
         const diff = differenceInSeconds(new Date(), probe.finishedAt);
 
@@ -30,7 +32,7 @@ function run() {
             return p;
           });
 
-          console.log("RUNNING -", probe);
+          console.log(`${nth} - RUNNING -`, probe);
         }
       });
     }
