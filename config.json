@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Probe 1",
+        "delay": 1
+    },
+    {
+        "name": "Probe 2",
+        "delay": 2
+    },
+    {
+        "name": "Probe 3",
+        "delay": 3
+    }
+]
