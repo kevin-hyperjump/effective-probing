@@ -28,6 +28,7 @@ const probeStateMachine = createMachine(
     actions: {
       incrementCycle: assign({
         cycle: (context) => context.cycle + 1,
+        lastStart: () => new Date(),
       }),
       setLastFinish: assign({
         lastFinish: () => new Date(),
@@ -45,6 +46,7 @@ function initializeProbeStates(probes) {
     const interpreter = interpret(
       probeStateMachine.withContext({
         cycle: 0,
+        lastStart: subDays(new Date(), 30),
         lastFinish: subDays(new Date(), 30),
       })
     ).start();

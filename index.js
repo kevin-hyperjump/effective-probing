@@ -1,4 +1,4 @@
-const { addSeconds, differenceInSeconds } = require("date-fns");
+const { differenceInSeconds, differenceInMilliseconds } = require("date-fns");
 const config = require("./config.json");
 const {
   initializeProbeStates,
@@ -11,11 +11,7 @@ const {
 let nth = 0;
 
 function run() {
-  const probes = config.map((c) => ({
-    ...c,
-    finishedAt: addSeconds(new Date(), 1),
-  }));
-
+  const probes = config;
   initializeProbeStates(probes);
 
   setInterval(() => {
@@ -59,6 +55,13 @@ function runProbe(probe) {
   setProbeRunning(probe.id);
   setTimeout(() => {
     setProbeFinish(probe.id);
+    const probeContext = getProbeContext(probe.id);
+    console.log(
+      `    Probe ${probe.id} finishes in ${differenceInMilliseconds(
+        probeContext.lastFinish,
+        probeContext.lastStart
+      )} milliseconds`
+    );
   }, Math.random() * 3000 + 100);
 }
 
