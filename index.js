@@ -1,42 +1,68 @@
-const { addSeconds, differenceInSeconds } = require("date-fns");
+const { differenceInSeconds, differenceInMilliseconds } = require("date-fns");
 const config = require("./config.json");
+const {
+  initializeProbeStates,
+  getProbeState,
+  setProbeFinish,
+  setProbeRunning,
+  getProbeContext,
+} = require("./probe-state");
 
 let nth = 0;
-let probeQueue = [];
 
 function run() {
-  let firstTime = true;
+  const probes = config;
+  initializeProbeStates(probes);
 
   setInterval(() => {
-    if (firstTime) {
-      const probes = config.map((c) => ({
-        ...c,
-        finishedAt: addSeconds(new Date(), 1),
-      }));
+    nth += 1;
 
-      probeQueue = probes;
-      firstTime = false;
-    } else {
-      nth += 1;
-      probeQueue.forEach((probe, idx) => {
-        const diff = differenceInSeconds(new Date(), probe.finishedAt);
+    let startedProbes = []; // list of probes that are started in this interval
+    let stillRunningProbes = []; // list of probes that are still running
+    let waitingProbes = []; // list of probes that are waiting
 
-        if (diff >= probe.delay) {
-          const tempQueue = probeQueue;
+    probes.forEach((probe) => {
+      const probeState = getProbeState(probe.id);
 
-          probeQueue = tempQueue.map((p, i) => {
-            if (i === idx) {
-              return { ...p, finishedAt: addSeconds(new Date(), 1) };
-            }
+      if (probeState === "running") {
+        stillRunningProbes.push(probe.id);
+        return;
+      }
 
-            return p;
-          });
+      const probeContext = getProbeContext(probe.id);
+      const diff = differenceInSeconds(new Date(), probeContext.lastFinish);
 
-          console.log(`${nth} - RUNNING -`, probe);
-        }
-      });
-    }
+      if (diff >= probe.delay) {
+        runProbe(probe);
+        startedProbes.push(probe.id);
+      } else {
+        waitingProbes.push(probe.id);
+      }
+    });
+
+    console.log(
+      `${nth} - STARTED: ${startedProbes.join(
+        ", "
+      )} - STILL RUNNING: ${stillRunningProbes.join(
+        ", "
+      )} - WAITING: ${waitingProbes.join(", ")}`
+    );
   }, 1000);
+}
+
+// pretend sending request, simulate probing finish in random seconds between 100ms - 3s
+function runProbe(probe) {
+  setProbeRunning(probe.id);
+  setTimeout(() => {
+    setProbeFinish(probe.id);
+    const probeContext = getProbeContext(probe.id);
+    console.log(
+      `    Probe ${probe.id} finishes in ${differenceInMilliseconds(
+        probeContext.lastFinish,
+        probeContext.lastStart
+      )} milliseconds`
+    );
+  }, Math.random() * 3000 + 100);
 }
 
 run();

@@ -1,14 +1,17 @@
 [
-    {
-        "name": "Probe 1",
-        "delay": 1
-    },
-    {
-        "name": "Probe 2",
-        "delay": 2
-    },
-    {
-        "name": "Probe 3",
-        "delay": 3
-    }
+  {
+    "id": "1",
+    "name": "Probe 1",
+    "delay": 1
+  },
+  {
+    "id": "2",
+    "name": "Probe 2",
+    "delay": 2
+  },
+  {
+    "id": "3",
+    "name": "Probe 3",
+    "delay": 3
+  }
 ]
